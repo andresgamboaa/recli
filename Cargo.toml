@@ -1,0 +1,20 @@
+[package]
+name = "recli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.3.22", features = ["derive"] }
+colored = "2.0.4"
+toml = "0.5.2"
+serde = "1.0.136"
+serde_derive = "1.0.136"
+sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio", "tls-native-tls", "chrono" ] }
+tokio = { version = "1.20.0", features = ["rt", "macros"]}
+anyhow = "1.0.75"
+dotenv = "0.15.0"
+chrono = {version = "0.4.26", features = ["serde"]}
+rand = "0.8.5"
+comfy-table = "7.0.1"
