@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    CREATE TABLE IF NOT EXISTS 'command_tags' (\n                        'tag'\tTEXT,\n                        'command_id'\tINTEGER,\n                        PRIMARY KEY('tag', 'command_id'),\n                        FOREIGN KEY ('command_id') REFERENCES commands('id') \n                    )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "53ac3ad197fa63f8559c3a66b929620b5b06ca0a50aae29ff04c65f5dee0f7c7"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                        INSERT OR IGNORE INTO 'command_tags' (tag, command_id) VALUES \n                        (?1, ?2);\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "b806ed5249225a4c5525436dcf09dd1544a2c1eaad05594d1afee9ae348c58c0"
+}

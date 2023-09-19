@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    CREATE TABLE IF NOT EXISTS 'commands' (\n                        'id'\tINTEGER,\n                        'task'\tTEXT NOT NULL UNIQUE,\n                        'clues' TEXT,\n                        'context'\tTEXT,\n                        'prompt'\tTEXT,\n                        'commands'\tTEXT NOT NULL,\n                        'response'\tTEXT,\n                        'extra' TEXT,\n                        'created' TEXT NOT NULL,\n                        'last_review' TEXT,\n                        'mode' TEXT NOT NULL,\n                        'review_count' INTEGER NOT NULL,\n                        'n' INTEGER NOT NULL,\n                        'e_factor'  REAL NOT NULL,\n                        'interval'  INTEGER NOT NULL,\n                        PRIMARY KEY('id' AUTOINCREMENT) \n                    )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "95b7c46503087c8c2375556ca24e42195f2f02beb119c5ecebacdd40164126eb"
+}

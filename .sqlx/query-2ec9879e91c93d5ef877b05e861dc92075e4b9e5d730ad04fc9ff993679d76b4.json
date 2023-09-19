@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT OR IGNORE INTO 'commands' (task, clues, context, prompt, commands, response, extra, created, last_review, mode, review_count, n, e_factor, interval) VALUES \n                (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 14
+    },
+    "nullable": []
+  },
+  "hash": "2ec9879e91c93d5ef877b05e861dc92075e4b9e5d730ad04fc9ff993679d76b4"
+}

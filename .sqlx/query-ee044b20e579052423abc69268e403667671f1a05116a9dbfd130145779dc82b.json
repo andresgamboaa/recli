@@ -1,0 +1,104 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT c.*\n        FROM commands AS c\n        INNER JOIN command_tags AS ct ON c.id = ct.command_id\n    ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "task",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "clues",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "context",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "prompt",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "commands",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "response",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "extra",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "created",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_review",
+        "ordinal": 9,
+        "type_info": "Text"
+      },
+      {
+        "name": "mode",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "review_count",
+        "ordinal": 11,
+        "type_info": "Int64"
+      },
+      {
+        "name": "n",
+        "ordinal": 12,
+        "type_info": "Int64"
+      },
+      {
+        "name": "e_factor",
+        "ordinal": 13,
+        "type_info": "Float"
+      },
+      {
+        "name": "interval",
+        "ordinal": 14,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ee044b20e579052423abc69268e403667671f1a05116a9dbfd130145779dc82b"
+}
