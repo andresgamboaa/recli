@@ -61,17 +61,18 @@ pub async fn practice(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut user_input).unwrap();
 
-        let is_correct = command.command.eq(&user_input.trim());
+        let is_correct = command.commands.contains(&user_input.trim().to_string());
 
         if is_correct {
             if let Some(response) = &command.response {
-                println!("{}\n", response.trim());
+                println!("{}", response.trim());
             }
-            println!("{}", "CORRECT!".green());
+            println!("\n{}", "CORRECT!".green());
         }
         else {
             println!("\n{}", "INCORRECT".red());
-            println!("Expected: {}\n", command.command.green());
+            println!("Expected:");
+            command.commands.iter().for_each(|c| println!("{}", c.green()));
             commands.push_back(command);
         }
         println!("{}", "Press 'Enter' to continue.".cyan());
@@ -99,8 +100,12 @@ pub async fn review(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
             command.task.cyan()
         );
 
+        if let Some(clues) = &command.clues {
+            println!("{}\n", clues.trim().cyan());
+        }
+
         if let Some(context) = &command.context {
-            print!("{}\n", context.trim());
+            println!("{}", context.trim());
         }
 
         match &command.prompt {
@@ -112,13 +117,17 @@ pub async fn review(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut user_input).unwrap();
 
-        let is_correct = command.command.eq(&user_input.trim());
+        let is_correct = command.commands.contains(&user_input.trim().to_string());
         let user_eval;
 
         if let Mode::Learning = command.sr_data.mode {
             if is_correct {
                 if let Some(response) = &command.response {
-                    println!("{}\n", response.trim());
+                    println!("{}", response.trim());
+                }
+
+                if let Some(extra) = &command.extra {
+                    println!("\n{}", extra.trim().cyan());
                 }
 
                 let eval1 = compute_sr_data(&command.sr_data, &Evaluation::CorrectButHard, false);
@@ -129,13 +138,17 @@ pub async fn review(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
                 let hard_e_factor_decrease = format!("-{}%",(current_e_factor - (eval1.e_factor * 100.0)).abs().floor());
                 let perfect_e_factor_increase = format!("+{}%", (current_e_factor - (eval3.e_factor * 100.0)).abs().floor());
 
-                println!("{}", "CORRECT!".green());
+                println!("\n{}", "CORRECT!".green());
                 println!("Ease: {}", format!("{}%", current_e_factor.to_string()).cyan());
                 println!("1: Hard       {} days  {}", eval1.interval, hard_e_factor_decrease.red());
                 println!("2: Good       {} days", eval2.interval);
                 println!("3: Perfect    {} days  {}", eval3.interval, perfect_e_factor_increase.green());
             }
             else {
+                if let Some(extra) = &command.extra {
+                    println!("\n{}", extra.trim().cyan());
+                }
+
                 let eval1 = compute_sr_data(&command.sr_data, &Evaluation::Blackout, false);
                 let eval2 = compute_sr_data(&command.sr_data, &Evaluation::IncorrectButRemembered, false);
                 let eval3 = compute_sr_data(&command.sr_data, &Evaluation::IncorrectWithEasyRecall, false);
@@ -144,8 +157,10 @@ pub async fn review(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
                 let blackout_e_factor_decrease = format!("-{}%",(current_e_factor - (eval1.e_factor * 100.0)).abs().floor());
                 let remembered_e_factor_decrease = format!("-{}%",(current_e_factor - (eval2.e_factor * 100.0)).abs().floor());
                 let easy_e_factor_decrease = format!("-{}%", (current_e_factor - (eval3.e_factor * 100.0)).abs().floor());
-                println!("{}", "INCORRECT".red());
-                println!("Expected: {}\n", command.command.green());
+                println!("\n{}", "INCORRECT".red());
+                println!("Expected:");
+                command.commands.iter().for_each(|c| println!("{}", c.green()));
+                
                 println!("{}", "Command scheduled for tomorrow".yellow());
                 println!("Ease: {}", format!("{}%", current_e_factor.to_string()).cyan());
                 println!("1: Complete blackout  {}", blackout_e_factor_decrease.red());
@@ -157,14 +172,25 @@ pub async fn review(commands: &mut VecDeque<Command>) -> anyhow::Result<()> {
         else { // If command is new or failed evalutate automatically
             if is_correct {
                 if let Some(response) = &command.response {
-                    println!("{}\n", response);
+                    println!("{}", response);
                 }
+
+                if let Some(extra) = &command.extra {
+                    println!("\n{}", extra.trim().cyan());
+                }
+
+                println!("\n{}", "CORRECT!".green());
                 user_eval = Evaluation::CorrectButHard;
             }
             else {
-                println!("{}", "Incorrect".red());
-                println!("Expected: {}\n", command.command.green());
+                if let Some(extra) = &command.extra {
+                    println!("\n{}", extra.trim().cyan());
+                }
 
+                println!("\n{}", "INCORRECT".red());
+                println!("Expected:");
+                command.commands.iter().for_each(|c| println!("{}", c.green()));
+                
                 user_eval = Evaluation::Blackout;
             }
             println!("{}", "Press 'Enter' to continue.".cyan());
@@ -206,7 +232,7 @@ pub fn show_commands(commands: &Vec<Command>) {
         table.add_row(vec![
              Cell::new(command.id.unwrap_or(0)),
              Cell::new(&command.task).fg(Color::Cyan),
-             Cell::new(&command.command),
+             Cell::new(&command.commands.get(0).unwrap_or(&"".to_string())),
              Cell::new(ease),
              Cell::new(&command.sr_data.interval),
         ]);

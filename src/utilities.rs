@@ -27,6 +27,6 @@ pub fn get_commands_from_toml(filename: &str) -> Vec<Command> {
     let commands_vec : CommandsVec = toml::from_str(&contents).unwrap_or_else(|error: toml::de::Error| {
         panic!("Invalid toml file: {}", error);
     });
-
+    
     commands_vec.commands
 }

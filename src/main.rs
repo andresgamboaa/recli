@@ -55,13 +55,12 @@ impl Default for SRData {
 pub struct Command {
     pub id: Option<i64>,
     pub task: String,
-    //pub clues: Option<String>,
+    pub clues: Option<String>,
     pub context: Option<String>, 
     pub prompt: Option<String>,
-    pub command: String,
-    //pub command_alternatives: Option<Vec<String>>,
+    pub commands: Vec<String>,
     pub response: Option<String>,
-    //pub extra: Option<String>,
+    pub extra: Option<String>,
     pub tags: Option<Vec<String>>,
     #[serde(skip)]
     pub sr_data: SRData
@@ -134,5 +133,6 @@ async fn main() -> anyhow::Result<()> {
             show_commands(&vec);
         },
     }
+
     Ok(())
 }

@@ -1,7 +1,4 @@
 /target
-/.sqlx
-sqlite.db
 sqlite.db-shm
 sqlite.db-wal
 commands.toml
-.env

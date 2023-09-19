@@ -3,6 +3,7 @@ use sqlx::SqlitePool;
 use sqlx::{migrate::MigrateDatabase, Sqlite};
 use chrono::{Utc, TimeZone, DateTime};
 use std::collections::VecDeque;
+use std::vec;
 use super::utilities::get_current_date;
 use std::path::PathBuf;
 
@@ -44,7 +45,6 @@ fn get_database_path() -> String {
     path.to_string_lossy().to_string()
 }
 
-
 pub async fn create_if_not_exists() -> anyhow::Result<()> {
     let db_path : String = get_database_path();
 
@@ -53,15 +53,14 @@ pub async fn create_if_not_exists() -> anyhow::Result<()> {
             Ok(_) => {
                 let db: sqlx::Pool<Sqlite> = SqlitePool::connect(&db_path).await.unwrap();
 
-                let query = "
+                sqlx::query!("
                     CREATE TABLE IF NOT EXISTS 'commands' (
                         'id'	INTEGER,
                         'task'	TEXT NOT NULL UNIQUE,
                         'clues' TEXT,
                         'context'	TEXT,
                         'prompt'	TEXT,
-                        'command'	TEXT NOT NULL,
-                        'command_alternatives' TEXT,
+                        'commands'	TEXT NOT NULL,
                         'response'	TEXT,
                         'extra' TEXT,
                         'created' TEXT NOT NULL,
@@ -72,19 +71,15 @@ pub async fn create_if_not_exists() -> anyhow::Result<()> {
                         'e_factor'  REAL NOT NULL,
                         'interval'  INTEGER NOT NULL,
                         PRIMARY KEY('id' AUTOINCREMENT) 
-                    )";
+                    )").execute(&db).await.unwrap();
 
-                sqlx::query(query).execute(&db).await.unwrap();
-
-                let query = "
+                sqlx::query!("
                     CREATE TABLE IF NOT EXISTS 'command_tags' (
                         'tag'	TEXT,
                         'command_id'	INTEGER,
                         PRIMARY KEY('tag', 'command_id'),
                         FOREIGN KEY ('command_id') REFERENCES commands('id') 
-                    )";
-
-                sqlx::query(query).execute(&db).await.unwrap();
+                    )").execute(&db).await.unwrap();
             }
             Err(error) => panic!("error: {}", error),
         }
@@ -115,7 +110,6 @@ pub async fn find_today_commands() -> anyhow::Result<VecDeque<Command>> {
 
     for result in &results {
         if result.mode == "New" { continue }
-        println!("- {}", result.last_review.clone().unwrap_or(String::from("-")));
         let last_review = text_to_datetime(&result.last_review.clone().unwrap());
 
         if last_review == get_current_date() {
@@ -141,10 +135,12 @@ pub async fn find_today_commands() -> anyhow::Result<VecDeque<Command>> {
         let command = Command { 
             id: Some(result.id), 
             task: result.task, 
+            clues: result.clues,
             context: result.context, 
             prompt: result.prompt, 
-            command: result.command, 
+            commands: result.commands.as_str().split("<<<>>>").map(|c| c.to_string()).collect(),
             response: result.response, 
+            extra: result.extra,
             tags: None,
             sr_data: SRData {
                 created: text_to_datetime(&result.created),
@@ -173,7 +169,7 @@ pub async fn find_today_commands() -> anyhow::Result<VecDeque<Command>> {
         }
 
     }
-
+    
     Ok(commands)
 }
 
@@ -195,10 +191,12 @@ pub async fn find_commands() -> anyhow::Result<VecDeque<Command>> {
         let command = Command { 
             id: Some(result.id), 
             task: result.task, 
+            clues: result.clues,
             context: result.context, 
             prompt: result.prompt, 
-            command: result.command, 
+            commands: result.commands.as_str().split("<<<>>>").map(|c| c.to_string()).collect(),
             response: result.response, 
+            extra: result.extra,
             tags: None,
             sr_data: SRData {
                 created: text_to_datetime(&result.created),
@@ -239,10 +237,12 @@ pub async fn find_commands_with_tag(tag:&str) -> anyhow::Result<VecDeque<Command
         let command = Command { 
             id: Some(result.id), 
             task: result.task, 
+            clues: result.clues,
             context: result.context, 
             prompt: result.prompt, 
-            command: result.command, 
+            commands: result.commands.as_str().split("<<<>>>").map(|c| c.to_string()).collect(),
             response: result.response, 
+            extra: result.extra,
             tags: None,
             sr_data: SRData {
                 created: text_to_datetime(&result.created),
@@ -271,16 +271,19 @@ pub async fn save_commands(commands: &Vec<Command>) -> anyhow::Result<()> {
     let sr_data = SRData::default();
 
     for command in commands {
+        let commands: String = command.commands.join("<<<>>>");
         let id = sqlx::query!(
             r#"
-                INSERT OR IGNORE INTO 'commands' (task, context, prompt, command, response, created, last_review, mode, review_count, n, e_factor, interval) VALUES 
-                (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12);
+                INSERT OR IGNORE INTO 'commands' (task, clues, context, prompt, commands, response, extra, created, last_review, mode, review_count, n, e_factor, interval) VALUES 
+                (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
             "#,
             command.task,
+            command.clues,
             command.context,
             command.prompt,
-            command.command,
+            commands,
             command.response,
+            command.extra,
             sr_data.created,
             sr_data.last_review,
             sr_data.mode,
@@ -308,7 +311,7 @@ pub async fn save_commands(commands: &Vec<Command>) -> anyhow::Result<()> {
         }
     }
 
-    println!("{} commands saved.", commands.len());
+    //println!("{} commands saved.", commands.len());
 
     Ok(())
 }
